@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
  *
  * @since 4.0
  */
+//定义HttpClient通用的接口
 public interface HttpClient {
 
     /**

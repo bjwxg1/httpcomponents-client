@@ -73,6 +73,7 @@ public interface HttpClientConnectionManager extends ModalCloseable {
      *              if the connection is not expected to carry any state.
      * @since 5.0
      */
+    //获取LeaseRequest
     LeaseRequest lease(String id, HttpRoute route, Timeout requestTimeout, Object state);
 
     /**
@@ -86,6 +87,7 @@ public interface HttpClientConnectionManager extends ModalCloseable {
      * @param newState      the new connection state of {@code null} if state-less.
      * @param validDuration the duration of time this connection is valid for reuse.
      */
+    //释放连接
     void release(ConnectionEndpoint endpoint, Object newState, TimeValue validDuration);
 
     /**
@@ -105,6 +107,7 @@ public interface HttpClientConnectionManager extends ModalCloseable {
      * @param endpoint      the managed endpoint.
      * @param context the actual HTTP context.
      */
+    //升级为TLS安全通信协议
     void upgrade(ConnectionEndpoint endpoint, HttpContext context) throws IOException;
 
 }

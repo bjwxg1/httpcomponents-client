@@ -43,6 +43,7 @@ import org.apache.hc.core5.util.TimeValue;
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
+//判断connection在重用之前可以多长时间保持空闲
 public interface ConnectionKeepAliveStrategy {
 
     /**

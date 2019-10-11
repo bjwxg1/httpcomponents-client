@@ -68,13 +68,16 @@ import org.apache.hc.core5.util.TimeValue;
  *
  * @since 5.0
  */
+//PoolingHttpClientConnectionManager的构造器
 public class PoolingHttpClientConnectionManagerBuilder {
 
     private HttpConnectionFactory<ManagedHttpClientConnection> connectionFactory;
     private LayeredConnectionSocketFactory sslSocketFactory;
     private SchemePortResolver schemePortResolver;
     private DnsResolver dnsResolver;
+    //连接池并发限制策略
     private PoolConcurrencyPolicy poolConcurrencyPolicy;
+    //连接池连接重用策略
     private PoolReusePolicy poolReusePolicy;
     private SocketConfig defaultSocketConfig;
 
@@ -216,9 +219,11 @@ public class PoolingHttpClientConnectionManagerBuilder {
         if (defaultSocketConfig != null) {
             poolingmgr.setDefaultSocketConfig(defaultSocketConfig);
         }
+        //设置最大连接数
         if (maxConnTotal > 0) {
             poolingmgr.setMaxTotal(maxConnTotal);
         }
+        //设置每个路由的最大连接数
         if (maxConnPerRoute > 0) {
             poolingmgr.setDefaultMaxPerRoute(maxConnPerRoute);
         }

@@ -43,6 +43,7 @@ import org.apache.hc.core5.util.TimeValue;
  *
  * @since 4.3
  */
+//明文的socketFactory
 @Contract(threading = ThreadingBehavior.STATELESS)
 public class PlainConnectionSocketFactory implements ConnectionSocketFactory {
 

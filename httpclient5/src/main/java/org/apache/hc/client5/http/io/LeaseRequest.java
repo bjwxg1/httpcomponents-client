@@ -61,6 +61,7 @@ public interface LeaseRequest extends Cancellable {
      * @throws InterruptedException
      *         if the calling thread is interrupted while waiting
      */
+    //获取ConnectionEndpoint
     ConnectionEndpoint get(Timeout timeout)
             throws InterruptedException, ExecutionException, TimeoutException;
 

@@ -62,6 +62,7 @@ public class DefaultConnectionKeepAliveStrategy implements ConnectionKeepAliveSt
             final HeaderElement he = it.next();
             final String param = he.getName();
             final String value = he.getValue();
+            //在Http中keep-alive可以保持连接可用，其中keep-alive中的time-out规定了连接空闲时间
             if (value != null && param.equalsIgnoreCase("timeout")) {
                 try {
                     return TimeValue.ofSeconds(Long.parseLong(value));

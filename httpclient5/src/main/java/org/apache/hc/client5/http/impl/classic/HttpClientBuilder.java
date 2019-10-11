@@ -139,6 +139,7 @@ import org.apache.hc.core5.util.VersionInfo;
  *
  * @since 4.3
  */
+//HttpClient的构造器
 public class HttpClientBuilder {
 
     private static class RequestInterceptorEntry {
@@ -189,6 +190,7 @@ public class HttpClientBuilder {
 
     }
 
+    //Http 请求的执行器，用于发送Http请求
     private HttpRequestExecutor requestExec;
     private HttpClientConnectionManager connManager;
     private boolean connManagerShared;
@@ -737,13 +739,16 @@ public class HttpClientBuilder {
         // Create main request executor
         // We copy the instance fields to avoid changing them, and rename to avoid accidental use of the wrong version
         HttpRequestExecutor requestExecCopy = this.requestExec;
+        //默认使用HttpRequestExecutor
         if (requestExecCopy == null) {
             requestExecCopy = new HttpRequestExecutor();
         }
         HttpClientConnectionManager connManagerCopy = this.connManager;
+        //默认使用PoolingHttpClientConnectionManager
         if (connManagerCopy == null) {
             connManagerCopy = PoolingHttpClientConnectionManagerBuilder.create().build();
         }
+        //设置默认的Connection重用策略
         ConnectionReuseStrategy reuseStrategyCopy = this.reuseStrategy;
         if (reuseStrategyCopy == null) {
             if (systemProperties) {
@@ -763,11 +768,12 @@ public class HttpClientBuilder {
                 reuseStrategyCopy = DefaultConnectionReuseStrategy.INSTANCE;
             }
         }
-
+        //设置ConnectionKeepAliveStrategy
         ConnectionKeepAliveStrategy keepAliveStrategyCopy = this.keepAliveStrategy;
         if (keepAliveStrategyCopy == null) {
             keepAliveStrategyCopy = DefaultConnectionKeepAliveStrategy.INSTANCE;
         }
+        //设置AuthenticationStrategy
         AuthenticationStrategy targetAuthStrategyCopy = this.targetAuthStrategy;
         if (targetAuthStrategyCopy == null) {
             targetAuthStrategyCopy = DefaultAuthenticationStrategy.INSTANCE;
@@ -776,6 +782,7 @@ public class HttpClientBuilder {
         if (proxyAuthStrategyCopy == null) {
             proxyAuthStrategyCopy = DefaultAuthenticationStrategy.INSTANCE;
         }
+
         UserTokenHandler userTokenHandlerCopy = this.userTokenHandler;
         if (userTokenHandlerCopy == null) {
             if (!connectionStateDisabled) {
@@ -796,6 +803,7 @@ public class HttpClientBuilder {
             }
         }
 
+        //设置execChain
         final NamedElementChain<ExecChainHandler> execChainDefinition = new NamedElementChain<>();
         execChainDefinition.addLast(
                 new MainClientExec(connManagerCopy, reuseStrategyCopy, keepAliveStrategyCopy, userTokenHandlerCopy),

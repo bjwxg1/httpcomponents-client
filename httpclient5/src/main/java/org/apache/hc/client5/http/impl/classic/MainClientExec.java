@@ -63,6 +63,7 @@ import org.slf4j.LoggerFactory;
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
 @Internal
+//ExecChainHandler中最重要的Handler，主要负责请求通信对端，并接收响应
 public final class MainClientExec implements ExecChainHandler {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -102,6 +103,7 @@ public final class MainClientExec implements ExecChainHandler {
             log.debug(exchangeId + ": executing " + new RequestLine(request));
         }
         try {
+            //对request Entity进行增强
             RequestEntityProxy.enhance(request);
 
             final ClassicHttpResponse response = execRuntime.execute(exchangeId, request, context);

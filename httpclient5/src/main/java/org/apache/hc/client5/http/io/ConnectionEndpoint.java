@@ -48,6 +48,7 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 5.0
  */
+//从HttpClientConnectionManager获取的客户端端点，用户执行http请求
 @Contract(threading = ThreadingBehavior.SAFE)
 public abstract class ConnectionEndpoint implements ModalCloseable {
 
@@ -62,6 +63,7 @@ public abstract class ConnectionEndpoint implements ModalCloseable {
      * @param executor the request executor.
      * @param context the execution context.
      */
+    //通过提供的HttpRequestExecutor执行Http请求
     public abstract ClassicHttpResponse execute(
             String id,
             ClassicHttpRequest request,
@@ -78,6 +80,7 @@ public abstract class ConnectionEndpoint implements ModalCloseable {
      *
      * @param timeout timeout value
      */
+    //设置socket超时时间
     public abstract void setSocketTimeout(Timeout timeout);
 
 }
