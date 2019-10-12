@@ -39,6 +39,7 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.3
  */
+//创建和Connect Socket的工厂
 public interface ConnectionSocketFactory {
 
     /**

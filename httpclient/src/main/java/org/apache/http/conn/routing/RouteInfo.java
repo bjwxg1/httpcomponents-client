@@ -36,6 +36,7 @@ import org.apache.http.HttpHost;
  *
  * @since 4.0
  */
+//路由信息结果
 public interface RouteInfo {
 
     /**

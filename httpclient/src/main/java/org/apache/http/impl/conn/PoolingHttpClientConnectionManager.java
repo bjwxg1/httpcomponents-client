@@ -107,6 +107,7 @@ public class PoolingHttpClientConnectionManager
     private final Log log = LogFactory.getLog(getClass());
 
     private final ConfigData configData;
+    //Connection Pool
     private final CPool pool;
     private final HttpClientConnectionOperator connectionOperator;
     private final AtomicBoolean isShutDown;

@@ -949,12 +949,16 @@ public class HttpClientBuilder {
             publicSuffixMatcherCopy = PublicSuffixMatcherLoader.getDefault();
         }
 
+        //创建HttpRequestExecutor
         HttpRequestExecutor requestExecCopy = this.requestExec;
         if (requestExecCopy == null) {
             requestExecCopy = new HttpRequestExecutor();
         }
+
+        //创建HttpClientConnectionManager
         HttpClientConnectionManager connManagerCopy = this.connManager;
         if (connManagerCopy == null) {
+            //创建sslSocketFactoryCopy
             LayeredConnectionSocketFactory sslSocketFactoryCopy = this.sslSocketFactory;
             if (sslSocketFactoryCopy == null) {
                 final String[] supportedProtocols = systemProperties ? split(

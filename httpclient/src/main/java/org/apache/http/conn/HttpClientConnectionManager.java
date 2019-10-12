@@ -49,6 +49,7 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.3
  */
+//Http client connection管理器
 public interface HttpClientConnectionManager {
 
     /**
@@ -78,6 +79,7 @@ public interface HttpClientConnectionManager {
      * @param state expected state of the connection or {@code null}
      *              if the connection is not expected to carry any state.
      */
+    //获取ConnectionRequest对象，从ConnectionRequest中获取HttpClientConnection
     ConnectionRequest requestConnection(HttpRoute route, Object state);
 
     /**
@@ -93,6 +95,7 @@ public interface HttpClientConnectionManager {
      *
      * @see #closeExpiredConnections()
      */
+    //释放连接信息，等待重新使用
     void releaseConnection(
             HttpClientConnection conn, Object newState, long validDuration, TimeUnit timeUnit);
 
@@ -107,6 +110,7 @@ public interface HttpClientConnectionManager {
      * @param context the actual HTTP context.
      * @throws IOException
      */
+    //连接HttpClientConnection底层的socket到目标host
     void connect(
             HttpClientConnection conn,
             HttpRoute route,
@@ -159,6 +163,7 @@ public interface HttpClientConnectionManager {
      *
      * @see #closeExpiredConnections()
      */
+    //关闭空闲连接
     void closeIdleConnections(long idletime, TimeUnit timeUnit);
 
     /**
@@ -170,6 +175,7 @@ public interface HttpClientConnectionManager {
      * Times will be checked with milliseconds precision.
      * </p>
      */
+    //关闭长期未使用连接
     void closeExpiredConnections();
 
     /**
@@ -177,6 +183,7 @@ public interface HttpClientConnectionManager {
      * This includes closing all connections, whether they are currently
      * used or not.
      */
+    //关闭connection manager ，释放资源
     void shutdown();
 
 }
