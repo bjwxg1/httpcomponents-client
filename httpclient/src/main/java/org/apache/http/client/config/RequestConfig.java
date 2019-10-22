@@ -43,7 +43,7 @@ import org.apache.http.annotation.ThreadingBehavior;
 public class RequestConfig implements Cloneable {
 
     public static final RequestConfig DEFAULT = new Builder().build();
-
+    //是否允许expect-continue
     private final boolean expectContinueEnabled;
     private final HttpHost proxy;
     private final InetAddress localAddress;

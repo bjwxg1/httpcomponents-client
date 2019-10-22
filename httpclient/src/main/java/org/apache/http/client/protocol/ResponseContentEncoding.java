@@ -55,6 +55,7 @@ import org.apache.http.protocol.HttpContext;
  * @since 4.1
  *
  */
+//处理HttpResponse的Content-Encoding
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class ResponseContentEncoding implements HttpResponseInterceptor {
 
@@ -68,6 +69,7 @@ public class ResponseContentEncoding implements HttpResponseInterceptor {
      */
     public ResponseContentEncoding(final Lookup<InputStreamFactory> decoderRegistry, final boolean ignoreUnknown) {
         this.decoderRegistry = decoderRegistry != null ? decoderRegistry :
+                //默认支持gzip、x-gzip和deflate三种Content-Encoding方式
             RegistryBuilder.<InputStreamFactory>create()
                     .register("gzip", GZIPInputStreamFactory.getInstance())
                     .register("x-gzip", GZIPInputStreamFactory.getInstance())
@@ -113,13 +115,16 @@ public class ResponseContentEncoding implements HttpResponseInterceptor {
         // entity can be null in case of 304 Not Modified, 204 No Content or similar
         // check for zero length entity.
         if (requestConfig.isContentCompressionEnabled() && entity != null && entity.getContentLength() != 0) {
+            //获取Content-Encoding header头信息
             final Header ceheader = entity.getContentEncoding();
             if (ceheader != null) {
                 final HeaderElement[] codecs = ceheader.getElements();
                 for (final HeaderElement codec : codecs) {
                     final String codecname = codec.getName().toLowerCase(Locale.ROOT);
+                    //获取对应的处理器
                     final InputStreamFactory decoderFactory = decoderRegistry.lookup(codecname);
                     if (decoderFactory != null) {
+                        //重新设置entity
                         response.setEntity(new DecompressingEntity(response.getEntity(), decoderFactory));
                         response.removeHeaders("Content-Length");
                         response.removeHeaders("Content-Encoding");

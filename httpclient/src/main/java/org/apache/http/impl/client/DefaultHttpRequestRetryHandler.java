@@ -59,11 +59,14 @@ public class DefaultHttpRequestRetryHandler implements HttpRequestRetryHandler {
     public static final DefaultHttpRequestRetryHandler INSTANCE = new DefaultHttpRequestRetryHandler();
 
     /** the number of times a method will be retried */
+    //重试次数
     private final int retryCount;
 
     /** Whether or not methods that have successfully sent their request will be retried */
+    //
     private final boolean requestSentRetryEnabled;
 
+    //不可以进行重复的IOException
     private final Set<Class<? extends IOException>> nonRetriableClasses;
 
     /**
@@ -132,10 +135,12 @@ public class DefaultHttpRequestRetryHandler implements HttpRequestRetryHandler {
             final HttpContext context) {
         Args.notNull(exception, "Exception parameter");
         Args.notNull(context, "HTTP context");
+        //次数超限，直接返回
         if (executionCount > this.retryCount) {
             // Do not retry if over max retry count
             return false;
         }
+        //如果Exception类型不能重试返回false
         if (this.nonRetriableClasses.contains(exception.getClass())) {
             return false;
         }
@@ -151,6 +156,7 @@ public class DefaultHttpRequestRetryHandler implements HttpRequestRetryHandler {
             return false;
         }
 
+        //如果request是幂等的返回false
         if (handleAsIdempotent(request)) {
             // Retry if the request is considered idempotent
             return true;

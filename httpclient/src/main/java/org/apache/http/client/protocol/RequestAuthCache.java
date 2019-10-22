@@ -55,6 +55,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.1
  */
+//对请求做预先验证
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class RequestAuthCache implements HttpRequestInterceptor {
 

@@ -35,6 +35,7 @@ import java.security.Principal;
  *
  * @since 4.0
  */
+//用户凭证接口
 public interface Credentials {
 
     Principal getUserPrincipal();

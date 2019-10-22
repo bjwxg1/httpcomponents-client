@@ -101,15 +101,23 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
         Args.notNull(request, "HTTP request");
         Args.notNull(response, "HTTP response");
 
+        //获取响应状态码
         final int statusCode = response.getStatusLine().getStatusCode();
+        //获取请求方法
         final String method = request.getRequestLine().getMethod();
         final Header locationHeader = response.getFirstHeader("location");
         switch (statusCode) {
+            //临时性重定向。该状态码表示请求的资源已被分配了新的URI，希望用户（本次）能使用新的URI访问。
+            //和301相似，但302表示的资源不是永久移动，只是临时性的。
         case HttpStatus.SC_MOVED_TEMPORARILY:
             return isRedirectable(method) && locationHeader != null;
+            //永久性定向[301]。该状态码表示请求的资源已被分配了新的URI，以后应使用资源现在所指的URI。
         case HttpStatus.SC_MOVED_PERMANENTLY:
+            //临时重定向。该状态码与302有相同的含义。尽管302标准禁止post变化get，但实际使用时大家不遵守。
+            //307会遵照浏览器标准，不会从post变为get。但是对于处理响应时的行为，各种浏览器有可能出现不同的情况。
         case HttpStatus.SC_TEMPORARY_REDIRECT:
             return isRedirectable(method);
+            //See Other [303]该状态码表示由于请求对应的资源存在着另一个URI，应使用GET方法定向获取请求的资源，
         case HttpStatus.SC_SEE_OTHER:
             return true;
         default:
@@ -197,6 +205,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
     /**
      * @since 4.2
      */
+    //判断请求方法是否可以执行重定向；只有Get请求和Head请求合一执行重定向
     protected boolean isRedirectable(final String method) {
         for (final String m: REDIRECT_METHODS) {
             if (m.equalsIgnoreCase(method)) {
@@ -207,6 +216,7 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
     }
 
     @Override
+    //获取重定向HttpUriRequest
     public HttpUriRequest getRedirect(
             final HttpRequest request,
             final HttpResponse response,

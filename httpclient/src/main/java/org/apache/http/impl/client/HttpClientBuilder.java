@@ -154,8 +154,10 @@ import org.apache.http.util.VersionInfo;
  *
  * @since 4.3
  */
+//CloseableHttpClient Builder
 public class HttpClientBuilder {
 
+    //requestExec，发送Http请求，接收响应
     private HttpRequestExecutor requestExec;
     private HostnameVerifier hostnameVerifier;
     private LayeredConnectionSocketFactory sslSocketFactory;
@@ -195,12 +197,18 @@ public class HttpClientBuilder {
     private RequestConfig defaultRequestConfig;
     private boolean evictExpiredConnections;
     private boolean evictIdleConnections;
+    //连接空闲时间
     private long maxIdleTime;
+    //空闲时间单位
     private TimeUnit maxIdleTimeUnit;
 
+    //是否使用系统属性标识
     private boolean systemProperties;
+    //是否允許重定向
     private boolean redirectHandlingDisabled;
+    //出現可恢復失敗時，是否允許自動重試
     private boolean automaticRetriesDisabled;
+    //是否开启content压缩
     private boolean contentCompressionDisabled;
     private boolean cookieManagementDisabled;
     private boolean authCachingDisabled;
@@ -941,6 +949,7 @@ public class HttpClientBuilder {
         return s.split(" *, *");
     }
 
+    //创建并返回CloseableHttpClient
     public CloseableHttpClient build() {
         // Create main request executor
         // We copy the instance fields to avoid changing them, and rename to avoid accidental use of the wrong version
@@ -966,6 +975,7 @@ public class HttpClientBuilder {
                 final String[] supportedCipherSuites = systemProperties ? split(
                         System.getProperty("https.cipherSuites")) : null;
                 HostnameVerifier hostnameVerifierCopy = this.hostnameVerifier;
+                //TODO
                 if (hostnameVerifierCopy == null) {
                     hostnameVerifierCopy = new DefaultHostnameVerifier(publicSuffixMatcherCopy);
                 }
@@ -1018,6 +1028,7 @@ public class HttpClientBuilder {
             }
             connManagerCopy = poolingmgr;
         }
+        //连接重用策略
         ConnectionReuseStrategy reuseStrategyCopy = this.reuseStrategy;
         if (reuseStrategyCopy == null) {
             if (systemProperties) {
@@ -1031,18 +1042,23 @@ public class HttpClientBuilder {
                 reuseStrategyCopy = DefaultClientConnectionReuseStrategy.INSTANCE;
             }
         }
+
+        //KeepAliveStrategy
         ConnectionKeepAliveStrategy keepAliveStrategyCopy = this.keepAliveStrategy;
         if (keepAliveStrategyCopy == null) {
             keepAliveStrategyCopy = DefaultConnectionKeepAliveStrategy.INSTANCE;
         }
+        //目标服务器授权策略
         AuthenticationStrategy targetAuthStrategyCopy = this.targetAuthStrategy;
         if (targetAuthStrategyCopy == null) {
             targetAuthStrategyCopy = TargetAuthenticationStrategy.INSTANCE;
         }
+        //代理服务器授权策略
         AuthenticationStrategy proxyAuthStrategyCopy = this.proxyAuthStrategy;
         if (proxyAuthStrategyCopy == null) {
             proxyAuthStrategyCopy = ProxyAuthenticationStrategy.INSTANCE;
         }
+        //UserTokenHandler
         UserTokenHandler userTokenHandlerCopy = this.userTokenHandler;
         if (userTokenHandlerCopy == null) {
             if (!connectionStateDisabled) {
@@ -1063,6 +1079,7 @@ public class HttpClientBuilder {
             }
         }
 
+        //创建ClientExecChain
         ClientExecChain execChain = createMainExec(
                 requestExecCopy,
                 connManagerCopy,
@@ -1077,7 +1094,7 @@ public class HttpClientBuilder {
 
         HttpProcessor httpprocessorCopy = this.httpprocessor;
         if (httpprocessorCopy == null) {
-
+            //创建HttpProcessorBuilder
             final HttpProcessorBuilder b = HttpProcessorBuilder.create();
             if (requestFirst != null) {
                 for (final HttpRequestInterceptor i: requestFirst) {
@@ -1089,6 +1106,7 @@ public class HttpClientBuilder {
                     b.addFirst(i);
                 }
             }
+            //添加默认HttpRequestInterceptor
             b.addAll(
                     new RequestDefaultHeaders(defaultHeaders),
                     new RequestContent(),
@@ -1096,9 +1114,11 @@ public class HttpClientBuilder {
                     new RequestClientConnControl(),
                     new RequestUserAgent(userAgentCopy),
                     new RequestExpectContinue());
+            //添加RequestAddCookies
             if (!cookieManagementDisabled) {
                 b.add(new RequestAddCookies());
             }
+            //添加RequestAcceptEncoding
             if (!contentCompressionDisabled) {
                 if (contentDecoderMap != null) {
                     final List<String> encodings = new ArrayList<String>(contentDecoderMap.keySet());
@@ -1111,6 +1131,9 @@ public class HttpClientBuilder {
             if (!authCachingDisabled) {
                 b.add(new RequestAuthCache());
             }
+
+
+            //添加ResponseProcessCookies
             if (!cookieManagementDisabled) {
                 b.add(new ResponseProcessCookies());
             }
@@ -1137,6 +1160,7 @@ public class HttpClientBuilder {
             }
             httpprocessorCopy = b.build();
         }
+        //ProtocolExec
         execChain = new ProtocolExec(execChain, httpprocessorCopy);
 
         execChain = decorateProtocolExec(execChain);
@@ -1221,9 +1245,10 @@ public class HttpClientBuilder {
                 closeablesCopy = new ArrayList<Closeable>(1);
             }
             final HttpClientConnectionManager cm = connManagerCopy;
-
+            //连接超时管理
             if (evictExpiredConnections || evictIdleConnections) {
                 final IdleConnectionEvictor connectionEvictor = new IdleConnectionEvictor(cm,
+                        //默认maxIdleTime为10秒
                         maxIdleTime > 0 ? maxIdleTime : 10, maxIdleTimeUnit != null ? maxIdleTimeUnit : TimeUnit.SECONDS,
                         maxIdleTime, maxIdleTimeUnit);
                 closeablesCopy.add(new Closeable() {
@@ -1239,8 +1264,10 @@ public class HttpClientBuilder {
                     }
 
                 });
+                //启动空闲连接回收器
                 connectionEvictor.start();
             }
+            //
             closeablesCopy.add(new Closeable() {
 
                 @Override
@@ -1251,6 +1278,7 @@ public class HttpClientBuilder {
             });
         }
 
+        //创建并返回InternalHttpClient
         return new InternalHttpClient(
                 execChain,
                 connManagerCopy,

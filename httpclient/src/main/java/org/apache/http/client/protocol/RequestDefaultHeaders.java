@@ -47,6 +47,7 @@ import org.apache.http.util.Args;
  */
 @SuppressWarnings("deprecation")
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
+//添加默认的Http Header
 public class RequestDefaultHeaders implements HttpRequestInterceptor {
 
     private final Collection<? extends Header> defaultHeaders;
@@ -69,6 +70,7 @@ public class RequestDefaultHeaders implements HttpRequestInterceptor {
         Args.notNull(request, "HTTP request");
 
         final String method = request.getRequestLine().getMethod();
+        //如果方法是Connect方法，直接返回。Connect方法是代理服务器使用的
         if (method.equalsIgnoreCase("CONNECT")) {
             return;
         }

@@ -89,7 +89,7 @@ import org.apache.http.util.EntityUtils;
 public class MainClientExec implements ClientExecChain {
 
     private final Log log = LogFactory.getLog(getClass());
-
+    //requestExecutor
     private final HttpRequestExecutor requestExecutor;
     private final HttpClientConnectionManager connManager;
     private final ConnectionReuseStrategy reuseStrategy;
@@ -121,16 +121,16 @@ public class MainClientExec implements ClientExecChain {
         Args.notNull(targetAuthStrategy, "Target authentication strategy");
         Args.notNull(proxyAuthStrategy, "Proxy authentication strategy");
         Args.notNull(userTokenHandler, "User token handler");
-        this.authenticator      = new HttpAuthenticator();
-        this.routeDirector      = new BasicRouteDirector();
-        this.requestExecutor    = requestExecutor;
-        this.connManager        = connManager;
-        this.reuseStrategy      = reuseStrategy;
-        this.keepAliveStrategy  = keepAliveStrategy;
+        this.authenticator = new HttpAuthenticator();
+        this.routeDirector = new BasicRouteDirector();
+        this.requestExecutor = requestExecutor;
+        this.connManager = connManager;
+        this.reuseStrategy = reuseStrategy;
+        this.keepAliveStrategy = keepAliveStrategy;
         this.proxyHttpProcessor = proxyHttpProcessor;
         this.targetAuthStrategy = targetAuthStrategy;
-        this.proxyAuthStrategy  = proxyAuthStrategy;
-        this.userTokenHandler   = userTokenHandler;
+        this.proxyAuthStrategy = proxyAuthStrategy;
+        this.userTokenHandler = userTokenHandler;
     }
 
     public MainClientExec(
@@ -173,6 +173,7 @@ public class MainClientExec implements ClientExecChain {
 
         Object userToken = context.getUserToken();
 
+        //从connectionManger中获取ConnectionRequest
         final ConnectionRequest connRequest = connManager.requestConnection(route, userToken);
         if (execAware != null) {
             if (execAware.isAborted()) {
@@ -187,11 +188,12 @@ public class MainClientExec implements ClientExecChain {
         final HttpClientConnection managedConn;
         try {
             final int timeout = config.getConnectionRequestTimeout();
+            //获取HttpClientConnection
             managedConn = connRequest.get(timeout > 0 ? timeout : 0, TimeUnit.MILLISECONDS);
-        } catch(final InterruptedException interrupted) {
+        } catch (final InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             throw new RequestAbortedException("Request aborted", interrupted);
-        } catch(final ExecutionException ex) {
+        } catch (final ExecutionException ex) {
             Throwable cause = ex.getCause();
             if (cause == null) {
                 cause = ex;
@@ -212,6 +214,7 @@ public class MainClientExec implements ClientExecChain {
             }
         }
 
+        //创建ConnectionHolder
         final ConnectionHolder connHolder = new ConnectionHolder(this.log, this.connManager, managedConn);
         try {
             if (execAware != null) {
@@ -219,7 +222,7 @@ public class MainClientExec implements ClientExecChain {
             }
 
             HttpResponse response;
-            for (int execCount = 1;; execCount++) {
+            for (int execCount = 1; ; execCount++) {
 
                 if (execCount > 1 && !RequestEntityProxy.isRepeatable(request)) {
                     throw new NonRepeatableRequestException("Cannot retry request " +
@@ -233,6 +236,8 @@ public class MainClientExec implements ClientExecChain {
                 if (!managedConn.isOpen()) {
                     this.log.debug("Opening connection " + route);
                     try {
+                        //如果HttpClientConnection打开，建立路由
+                        //TODO 此处会创建Socket连接
                         establishRoute(proxyAuthState, managedConn, route, request, context);
                     } catch (final TunnelRefusedException ex) {
                         if (this.log.isDebugEnabled()) {
@@ -243,6 +248,7 @@ public class MainClientExec implements ClientExecChain {
                     }
                 }
                 final int timeout = config.getSocketTimeout();
+                //设置socket超时时间
                 if (timeout >= 0) {
                     managedConn.setSocketTimeout(timeout);
                 }
@@ -269,9 +275,11 @@ public class MainClientExec implements ClientExecChain {
                 }
 
                 context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+                //发送Http请求
                 response = requestExecutor.execute(request, managedConn, context);
 
                 // The connection is in or can be brought to a re-usable state.
+                //判断连接是否可以重复使用
                 if (reuseStrategy.keepAlive(response, context)) {
                     // Set the idle duration of this connection
                     final long duration = keepAliveStrategy.getKeepAliveDuration(response, context);
@@ -334,6 +342,7 @@ public class MainClientExec implements ClientExecChain {
             final HttpEntity entity = response.getEntity();
             if (entity == null || !entity.isStreaming()) {
                 // connection not needed and (assumed to be) in re-usable state
+                //释放连接
                 connHolder.releaseConnection();
                 return new HttpResponseProxy(response, null);
             }
@@ -389,55 +398,57 @@ public class MainClientExec implements ClientExecChain {
 
             switch (step) {
 
-            case HttpRouteDirector.CONNECT_TARGET:
-                this.connManager.connect(
-                        managedConn,
-                        route,
-                        timeout > 0 ? timeout : 0,
-                        context);
-                tracker.connectTarget(route.isSecure());
-                break;
-            case HttpRouteDirector.CONNECT_PROXY:
-                this.connManager.connect(
-                        managedConn,
-                        route,
-                        timeout > 0 ? timeout : 0,
-                        context);
-                final HttpHost proxy  = route.getProxyHost();
-                tracker.connectProxy(proxy, route.isSecure() && !route.isTunnelled());
-                break;
-            case HttpRouteDirector.TUNNEL_TARGET: {
-                final boolean secure = createTunnelToTarget(
-                        proxyAuthState, managedConn, route, request, context);
-                this.log.debug("Tunnel to target created.");
-                tracker.tunnelTarget(secure);
-            }   break;
-
-            case HttpRouteDirector.TUNNEL_PROXY: {
-                // The most simple example for this case is a proxy chain
-                // of two proxies, where P1 must be tunnelled to P2.
-                // route: Source -> P1 -> P2 -> Target (3 hops)
-                // fact:  Source -> P1 -> Target       (2 hops)
-                final int hop = fact.getHopCount()-1; // the hop to establish
-                final boolean secure = createTunnelToProxy(route, hop, context);
-                this.log.debug("Tunnel to proxy created.");
-                tracker.tunnelProxy(route.getHopTarget(hop), secure);
-            }   break;
-
-            case HttpRouteDirector.LAYER_PROTOCOL:
-                this.connManager.upgrade(managedConn, route, context);
-                tracker.layerProtocol(route.isSecure());
+                case HttpRouteDirector.CONNECT_TARGET:
+                    this.connManager.connect(
+                            managedConn,
+                            route,
+                            timeout > 0 ? timeout : 0,
+                            context);
+                    tracker.connectTarget(route.isSecure());
+                    break;
+                case HttpRouteDirector.CONNECT_PROXY:
+                    this.connManager.connect(
+                            managedConn,
+                            route,
+                            timeout > 0 ? timeout : 0,
+                            context);
+                    final HttpHost proxy = route.getProxyHost();
+                    tracker.connectProxy(proxy, route.isSecure() && !route.isTunnelled());
+                    break;
+                case HttpRouteDirector.TUNNEL_TARGET: {
+                    final boolean secure = createTunnelToTarget(
+                            proxyAuthState, managedConn, route, request, context);
+                    this.log.debug("Tunnel to target created.");
+                    tracker.tunnelTarget(secure);
+                }
                 break;
 
-            case HttpRouteDirector.UNREACHABLE:
-                throw new HttpException("Unable to establish route: " +
-                        "planned = " + route + "; current = " + fact);
-            case HttpRouteDirector.COMPLETE:
-                this.connManager.routeComplete(managedConn, route, context);
+                case HttpRouteDirector.TUNNEL_PROXY: {
+                    // The most simple example for this case is a proxy chain
+                    // of two proxies, where P1 must be tunnelled to P2.
+                    // route: Source -> P1 -> P2 -> Target (3 hops)
+                    // fact:  Source -> P1 -> Target       (2 hops)
+                    final int hop = fact.getHopCount() - 1; // the hop to establish
+                    final boolean secure = createTunnelToProxy(route, hop, context);
+                    this.log.debug("Tunnel to proxy created.");
+                    tracker.tunnelProxy(route.getHopTarget(hop), secure);
+                }
                 break;
-            default:
-                throw new IllegalStateException("Unknown step indicator "
-                        + step + " from RouteDirector.");
+
+                case HttpRouteDirector.LAYER_PROTOCOL:
+                    this.connManager.upgrade(managedConn, route, context);
+                    tracker.layerProtocol(route.isSecure());
+                    break;
+
+                case HttpRouteDirector.UNREACHABLE:
+                    throw new HttpException("Unable to establish route: " +
+                            "planned = " + route + "; current = " + fact);
+                case HttpRouteDirector.COMPLETE:
+                    this.connManager.routeComplete(managedConn, route, context);
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown step indicator "
+                            + step + " from RouteDirector.");
             }
 
         } while (step > HttpRouteDirector.COMPLETE);

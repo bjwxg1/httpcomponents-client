@@ -40,6 +40,7 @@ import org.apache.http.util.LangUtils;
  *
  * @since 4.0
  */
+//用户名和密码方式的权限校验
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class UsernamePasswordCredentials implements Credentials, Serializable {
 

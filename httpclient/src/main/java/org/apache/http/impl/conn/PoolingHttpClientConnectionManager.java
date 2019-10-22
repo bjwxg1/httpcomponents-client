@@ -110,6 +110,7 @@ public class PoolingHttpClientConnectionManager
     //Connection Pool
     private final CPool pool;
     private final HttpClientConnectionOperator connectionOperator;
+    //关闭标识
     private final AtomicBoolean isShutDown;
 
     private static Registry<ConnectionSocketFactory> getDefaultRegistry() {
@@ -259,6 +260,7 @@ public class PoolingHttpClientConnectionManager
     }
 
     @Override
+    //获取ConnectionRequest
     public ConnectionRequest requestConnection(
             final HttpRoute route,
             final Object state) {
@@ -266,6 +268,7 @@ public class PoolingHttpClientConnectionManager
         if (this.log.isDebugEnabled()) {
             this.log.debug("Connection request: " + format(route, state) + formatStats(route));
         }
+        //从CPool获取CPoolEntry，此处没有阻塞，直接返回Future，从Future获取CPoolEntry会阻塞
         final Future<CPoolEntry> future = this.pool.lease(route, state, null);
         return new ConnectionRequest() {
 
@@ -302,6 +305,7 @@ public class PoolingHttpClientConnectionManager
             final TimeUnit timeUnit) throws InterruptedException, ExecutionException, ConnectionPoolTimeoutException {
         final CPoolEntry entry;
         try {
+            //从future获取CPoolEntry
             entry = future.get(timeout, timeUnit);
             if (entry == null || future.isCancelled()) {
                 throw new ExecutionException(new CancellationException("Operation cancelled"));
@@ -310,6 +314,7 @@ public class PoolingHttpClientConnectionManager
             if (this.log.isDebugEnabled()) {
                 this.log.debug("Connection leased: " + format(entry) + formatStats(entry.getRoute()));
             }
+            //创建并返回HttpClientConnection
             return CPoolProxy.newProxy(entry);
         } catch (final TimeoutException ex) {
             throw new ConnectionPoolTimeoutException("Timeout waiting for connection from pool");
@@ -542,10 +547,12 @@ public class PoolingHttpClientConnectionManager
         pool.setValidateAfterInactivity(ms);
     }
 
+    //COnfig Data
     static class ConfigData {
-
+        //不同路由的SocketConfig配置
         private final Map<HttpHost, SocketConfig> socketConfigMap;
         private final Map<HttpHost, ConnectionConfig> connectionConfigMap;
+        //默认SocketConfig和ConnectionConfig
         private volatile SocketConfig defaultSocketConfig;
         private volatile ConnectionConfig defaultConnectionConfig;
 

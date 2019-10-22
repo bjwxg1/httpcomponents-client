@@ -43,6 +43,7 @@ import org.apache.http.util.Args;
  * @since 4.4
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
+//公共后缀
 public final class PublicSuffixList {
 
     private final DomainType type;

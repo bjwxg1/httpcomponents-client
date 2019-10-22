@@ -41,6 +41,7 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.0
  */
+//判断HttpRequest在出现可恢复的异常之后是否可以重试
 public interface HttpRequestRetryHandler {
 
     /**

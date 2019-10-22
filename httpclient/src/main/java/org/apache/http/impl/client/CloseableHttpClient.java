@@ -83,12 +83,15 @@ public abstract class CloseableHttpClient implements HttpClient, Closeable {
         return doExecute(determineTarget(request), request, context);
     }
 
+    //根据request返回HttpHost
     private static HttpHost determineTarget(final HttpUriRequest request) throws ClientProtocolException {
         // A null target may be acceptable if there is a default target.
         // Otherwise, the null target is detected in the director.
         HttpHost target = null;
 
+        //获取请求的URL
         final URI requestURI = request.getURI();
+        //判断请求是否是绝对路径
         if (requestURI.isAbsolute()) {
             target = URIUtils.extractHost(requestURI);
             if (target == null) {

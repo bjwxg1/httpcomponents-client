@@ -39,6 +39,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.4
  */
+//空闲连接回收器
 public final class IdleConnectionEvictor {
 
     private final HttpClientConnectionManager connectionManager;
@@ -58,12 +59,15 @@ public final class IdleConnectionEvictor {
         this.threadFactory = threadFactory != null ? threadFactory : new DefaultThreadFactory();
         this.sleepTimeMs = sleepTimeUnit != null ? sleepTimeUnit.toMillis(sleepTime) : sleepTime;
         this.maxIdleTimeMs = maxIdleTimeUnit != null ? maxIdleTimeUnit.toMillis(maxIdleTime) : maxIdleTime;
+        //创建新的线程，管理超时和过期连接
         this.thread = this.threadFactory.newThread(new Runnable() {
             @Override
             public void run() {
                 try {
                     while (!Thread.currentThread().isInterrupted()) {
+                        //休息sleepTimeMs
                         Thread.sleep(sleepTimeMs);
+                        //关闭所有超时连接
                         connectionManager.closeExpiredConnections();
                         if (maxIdleTimeMs > 0) {
                             connectionManager.closeIdleConnections(maxIdleTimeMs, TimeUnit.MILLISECONDS);

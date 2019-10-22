@@ -51,6 +51,7 @@ public class DefaultConnectionKeepAliveStrategy implements ConnectionKeepAliveSt
 
     public static final DefaultConnectionKeepAliveStrategy INSTANCE = new DefaultConnectionKeepAliveStrategy();
 
+    //默认根据response中CONN_KEEP_ALIVE header的timeout设置的值来获取keepAlive time
     @Override
     public long getKeepAliveDuration(final HttpResponse response, final HttpContext context) {
         Args.notNull(response, "HTTP response");

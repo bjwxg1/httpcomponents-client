@@ -122,9 +122,11 @@ class InternalHttpClient extends CloseableHttpClient implements Configurable {
         if (host == null) {
             host = (HttpHost) request.getParams().getParameter(ClientPNames.DEFAULT_HOST);
         }
+        //
         return this.routePlanner.determineRoute(host, request, context);
     }
 
+    //设置Context
     private void setupContext(final HttpClientContext context) {
         if (context.getAttribute(HttpClientContext.TARGET_AUTH_STATE) == null) {
             context.setAttribute(HttpClientContext.TARGET_AUTH_STATE, new AuthState());
@@ -160,6 +162,7 @@ class InternalHttpClient extends CloseableHttpClient implements Configurable {
             execAware = (HttpExecutionAware) request;
         }
         try {
+            //对httpRequest进行包装
             final HttpRequestWrapper wrapper = HttpRequestWrapper.wrap(request, target);
             final HttpClientContext localcontext = HttpClientContext.adapt(
                     context != null ? context : new BasicHttpContext());
@@ -181,6 +184,7 @@ class InternalHttpClient extends CloseableHttpClient implements Configurable {
                 localcontext.setRequestConfig(config);
             }
             setupContext(localcontext);
+            //根据HttpHost决定路由信息
             final HttpRoute route = determineRoute(target, wrapper, localcontext);
             return this.execChain.execute(route, wrapper, localcontext, execAware);
         } catch (final HttpException httpException) {

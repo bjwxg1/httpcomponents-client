@@ -48,6 +48,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
+//为持久连接添加Connection或者Proxy-Connection头信息
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class RequestClientConnControl implements HttpRequestInterceptor {
 

@@ -39,9 +39,11 @@ import org.apache.http.util.LangUtils;
  *
  * @since 4.0
  */
+//记录建立路由的步骤
 public final class RouteTracker implements RouteInfo, Cloneable {
 
     /** The target host to connect to. */
+    //连接的目标服务器
     private final HttpHost targetHost;
 
     /**
@@ -54,9 +56,11 @@ public final class RouteTracker implements RouteInfo, Cloneable {
     // now follow attributes that indicate the established route
 
     /** Whether the first hop of the route is established. */
+    //连接标识
     private boolean connected;
 
     /** The proxy chain, if any. */
+    //代理链
     private HttpHost[] proxyChain;
 
     /** Whether the the route is tunnelled end-to-end through proxies. */

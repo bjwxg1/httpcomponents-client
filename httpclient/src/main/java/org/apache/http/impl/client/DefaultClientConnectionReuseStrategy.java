@@ -53,6 +53,7 @@ public class DefaultClientConnectionReuseStrategy extends DefaultConnectionReuse
                 final TokenIterator ti = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
                 while (ti.hasNext()) {
                     final String token = ti.nextToken();
+                    //如果Connection header为close返回false
                     if (HTTP.CONN_CLOSE.equalsIgnoreCase(token)) {
                         return false;
                     }

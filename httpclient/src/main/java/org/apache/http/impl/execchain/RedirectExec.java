@@ -65,6 +65,7 @@ import org.apache.http.util.EntityUtils;
  *
  * @since 4.3
  */
+//处理重定向的Exce
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class RedirectExec implements ClientExecChain {
 
@@ -97,19 +98,23 @@ public class RedirectExec implements ClientExecChain {
         Args.notNull(request, "HTTP request");
         Args.notNull(context, "HTTP context");
 
+        //获取重定向的URI地址
         final List<URI> redirectLocations = context.getRedirectLocations();
         if (redirectLocations != null) {
             redirectLocations.clear();
         }
 
         final RequestConfig config = context.getRequestConfig();
+        //获取最大重定向次数
         final int maxRedirects = config.getMaxRedirects() > 0 ? config.getMaxRedirects() : 50;
         HttpRoute currentRoute = route;
         HttpRequestWrapper currentRequest = request;
         for (int redirectCount = 0;;) {
+            //执行请求
             final CloseableHttpResponse response = requestExecutor.execute(
                     currentRoute, currentRequest, context, execAware);
             try {
+                //如果允许重定向
                 if (config.isRedirectsEnabled() &&
                         this.redirectStrategy.isRedirected(currentRequest.getOriginal(), response, context)) {
 
@@ -118,9 +123,11 @@ public class RedirectExec implements ClientExecChain {
                     }
                     redirectCount++;
 
+                    //获取重定向后的HttpRequest
                     final HttpRequest redirect = this.redirectStrategy.getRedirect(
                             currentRequest.getOriginal(), response, context);
                     if (!redirect.headerIterator().hasNext()) {
+                        //拷贝Header信息
                         final HttpRequest original = request.getOriginal();
                         redirect.setHeaders(original.getAllHeaders());
                     }

@@ -46,6 +46,7 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.1
  */
+//设置Accept-Encoding header信息
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class RequestAcceptEncoding implements HttpRequestInterceptor {
 

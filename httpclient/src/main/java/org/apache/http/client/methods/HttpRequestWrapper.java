@@ -50,7 +50,7 @@ import org.apache.http.util.Args;
  */
 @SuppressWarnings("deprecation")
 public class HttpRequestWrapper extends AbstractHttpMessage implements HttpUriRequest {
-
+    //原始Http请求
     private final HttpRequest original;
     private final HttpHost target;
     private final String method;

@@ -72,6 +72,7 @@ import org.apache.http.util.Args;
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 @SuppressWarnings("deprecation")
+//实现Http规范文档中的要求，使用HttpProcessor填充Http请求Header，处理Http response Header、更新session状态等
 public class ProtocolExec implements ClientExecChain {
 
     private final Log log = LogFactory.getLog(getClass());

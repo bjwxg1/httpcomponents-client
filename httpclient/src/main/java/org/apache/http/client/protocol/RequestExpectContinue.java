@@ -54,6 +54,7 @@ import org.apache.http.util.Args;
  * @since 4.3
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
+//添加Expect，使httprequest增加expect-continue支持
 public class RequestExpectContinue implements HttpRequestInterceptor {
 
     public RequestExpectContinue() {

@@ -74,12 +74,14 @@ public class DefaultRoutePlanner implements HttpRoutePlanner {
         final RequestConfig config = clientContext.getRequestConfig();
         final InetAddress local = config.getLocalAddress();
         HttpHost proxy = config.getProxy();
+        //
         if (proxy == null) {
             proxy = determineProxy(host, request, context);
         }
 
         final HttpHost target;
         if (host.getPort() <= 0) {
+            //如果端口号小于0使用默认的端口，Http为80，https为443
             try {
                 target = new HttpHost(
                         host.getHostName(),
@@ -91,6 +93,7 @@ public class DefaultRoutePlanner implements HttpRoutePlanner {
         } else {
             target = host;
         }
+        //判断使用的协议是否是Https
         final boolean secure = target.getSchemeName().equalsIgnoreCase("https");
         return proxy == null
                         ? new HttpRoute(target, local, secure)

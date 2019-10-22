@@ -39,6 +39,7 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.0
  */
+//
 public interface ConnectionKeepAliveStrategy {
 
     /**
@@ -61,6 +62,7 @@ public interface ConnectionKeepAliveStrategy {
      * @return the duration in ms for which it is safe to keep the connection
      *         idle, or &lt;=0 if no suggested duration.
      */
+    //获取连接在重用前可以空闲的时间
     long getKeepAliveDuration(HttpResponse response, HttpContext context);
 
 }

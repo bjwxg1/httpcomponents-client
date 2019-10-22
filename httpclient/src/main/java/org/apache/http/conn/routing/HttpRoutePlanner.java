@@ -44,6 +44,7 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.0
  */
+//封装计算host到HttpRoute的逻辑
 public interface HttpRoutePlanner {
 
     /**

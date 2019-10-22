@@ -136,6 +136,8 @@ import org.apache.http.util.TextUtils;
  *
  * @since 4.3
  */
+//用户创建TSL/SSL socket的工厂
+//TODO
 @Contract(threading = ThreadingBehavior.SAFE)
 @SuppressWarnings("deprecation")
 public class SSLConnectionSocketFactory implements LayeredConnectionSocketFactory {

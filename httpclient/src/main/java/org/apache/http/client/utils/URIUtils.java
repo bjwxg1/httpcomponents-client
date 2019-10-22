@@ -421,7 +421,9 @@ public class URIUtils {
         }
         HttpHost target = null;
         if (uri.isAbsolute()) {
+            //获取端口
             int port = uri.getPort(); // may be overridden later
+            //获取host
             String host = uri.getHost();
             if (host == null) { // normal parse failed; let's do it ourselves
                 // authority does not seem to care about the valid character-set for host names
@@ -460,9 +462,11 @@ public class URIUtils {
                     }
                 }
             }
+            //获取协议
             final String scheme = uri.getScheme();
             if (!TextUtils.isBlank(host)) {
                 try {
+                    //创建并返回Http host
                     target = new HttpHost(host, port, scheme);
                 } catch (final IllegalArgumentException ignore) {
                 }

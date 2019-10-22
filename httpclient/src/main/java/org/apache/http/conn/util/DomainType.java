@@ -33,6 +33,7 @@ package org.apache.http.conn.util;
  */
 public enum DomainType {
 
-    UNKNOWN, ICANN, PRIVATE
-
+    UNKNOWN,
+    ICANN,//互联网名称与数字地址分配机构
+    PRIVATE
 }

@@ -86,6 +86,7 @@ public class DefaultHttpClientConnectionOperator implements HttpClientConnection
     }
 
     @SuppressWarnings("unchecked")
+    //返回注册的ConnectionSocketFactory
     private Lookup<ConnectionSocketFactory> getSocketFactoryRegistry(final HttpContext context) {
         Lookup<ConnectionSocketFactory> reg = (Lookup<ConnectionSocketFactory>) context.getAttribute(
                 SOCKET_FACTORY_REGISTRY);
@@ -104,19 +105,23 @@ public class DefaultHttpClientConnectionOperator implements HttpClientConnection
             final SocketConfig socketConfig,
             final HttpContext context) throws IOException {
         final Lookup<ConnectionSocketFactory> registry = getSocketFactoryRegistry(context);
+        //根据scheme获取创建Socket连接的工厂
         final ConnectionSocketFactory sf = registry.lookup(host.getSchemeName());
         if (sf == null) {
             throw new UnsupportedSchemeException(host.getSchemeName() +
                     " protocol is not supported");
         }
+        //根据host解析地址信息
         final InetAddress[] addresses = host.getAddress() != null ?
                 new InetAddress[] { host.getAddress() } : this.dnsResolver.resolve(host.getHostName());
+        //获取端口
         final int port = this.schemePortResolver.resolve(host);
         for (int i = 0; i < addresses.length; i++) {
             final InetAddress address = addresses[i];
             final boolean last = i == addresses.length - 1;
-
+            //创建socket连接
             Socket sock = sf.createSocket(context);
+            //配置TCP参数
             sock.setSoTimeout(socketConfig.getSoTimeout());
             sock.setReuseAddress(socketConfig.isSoReuseAddress());
             sock.setTcpNoDelay(socketConfig.isTcpNoDelay());
@@ -132,6 +137,7 @@ public class DefaultHttpClientConnectionOperator implements HttpClientConnection
             if (linger >= 0) {
                 sock.setSoLinger(true, linger);
             }
+            //将socket连接和HttpConnection绑定
             conn.bind(sock);
 
             final InetSocketAddress remoteAddress = new InetSocketAddress(address, port);
@@ -139,6 +145,7 @@ public class DefaultHttpClientConnectionOperator implements HttpClientConnection
                 this.log.debug("Connecting to " + remoteAddress);
             }
             try {
+                //连接过服务器
                 sock = sf.connectSocket(
                         connectTimeout, sock, host, remoteAddress, localAddress, context);
                 conn.bind(sock);

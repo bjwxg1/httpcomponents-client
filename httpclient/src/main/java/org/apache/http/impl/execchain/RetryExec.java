@@ -57,12 +57,14 @@ import org.apache.http.util.Args;
  *
  * @since 4.3
  */
+//重试执行器，判断请求失败是否是因为IO错误，然后执行重试
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class RetryExec implements ClientExecChain {
 
     private final Log log = LogFactory.getLog(getClass());
 
     private final ClientExecChain requestExecutor;
+    //重试操作执行器
     private final HttpRequestRetryHandler retryHandler;
 
     public RetryExec(
@@ -86,8 +88,10 @@ public class RetryExec implements ClientExecChain {
         final Header[] origheaders = request.getAllHeaders();
         for (int execCount = 1;; execCount++) {
             try {
+                //调用下一个requestExecutor执行请求
                 return this.requestExecutor.execute(route, request, context, execAware);
             } catch (final IOException ex) {
+                //如果请求已经终止，直接抛出异常
                 if (execAware != null && execAware.isAborted()) {
                     this.log.debug("Request has been aborted");
                     throw ex;
@@ -108,6 +112,7 @@ public class RetryExec implements ClientExecChain {
                         throw new NonRepeatableRequestException("Cannot retry request " +
                                 "with a non-repeatable request entity", ex);
                     }
+                    //重新设置header信息
                     request.setHeaders(origheaders);
                     if (this.log.isInfoEnabled()) {
                         this.log.info("Retrying request to " + route);
