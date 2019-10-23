@@ -47,6 +47,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.4
  */
+//公共后缀匹配器
 @Contract(threading = ThreadingBehavior.SAFE)
 public final class PublicSuffixMatcher {
 

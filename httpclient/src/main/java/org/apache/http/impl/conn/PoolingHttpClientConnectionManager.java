@@ -105,10 +105,12 @@ public class PoolingHttpClientConnectionManager
     implements HttpClientConnectionManager, ConnPoolControl<HttpRoute>, Closeable {
 
     private final Log log = LogFactory.getLog(getClass());
-
+    //配置数据
     private final ConfigData configData;
     //Connection Pool
+    //连接池
     private final CPool pool;
+    //connectionOperatorc:用于创建连接和进行upgrade操作
     private final HttpClientConnectionOperator connectionOperator;
     //关闭标识
     private final AtomicBoolean isShutDown;
@@ -202,6 +204,7 @@ public class PoolingHttpClientConnectionManager
         this.isShutDown = new AtomicBoolean(false);
     }
 
+    //重写Object的finalize方法，释放资源
     @Override
     protected void finalize() throws Throwable {
         try {
@@ -260,7 +263,7 @@ public class PoolingHttpClientConnectionManager
     }
 
     @Override
-    //获取ConnectionRequest
+    //获取ConnectionRequest，从ConnectionRequest中获取HttpClientConnection
     public ConnectionRequest requestConnection(
             final HttpRoute route,
             final Object state) {
@@ -270,6 +273,7 @@ public class PoolingHttpClientConnectionManager
         }
         //从CPool获取CPoolEntry，此处没有阻塞，直接返回Future，从Future获取CPoolEntry会阻塞
         final Future<CPoolEntry> future = this.pool.lease(route, state, null);
+        //返回Connection
         return new ConnectionRequest() {
 
             @Override
@@ -358,6 +362,7 @@ public class PoolingHttpClientConnectionManager
         }
     }
 
+    //为managedConn创建到HttpRoute的Socket连接
     @Override
     public void connect(
             final HttpClientConnection managedConn,
@@ -377,11 +382,13 @@ public class PoolingHttpClientConnectionManager
         } else {
             host = route.getTargetHost();
         }
+        //使用connectionOperator创建到host的连接
         this.connectionOperator.connect(
                 conn, host, route.getLocalSocketAddress(), connectTimeout, resolveSocketConfig(host), context);
     }
 
     @Override
+    //升级协议
     public void upgrade(
             final HttpClientConnection managedConn,
             final HttpRoute route,
@@ -414,6 +421,7 @@ public class PoolingHttpClientConnectionManager
         if (this.isShutDown.compareAndSet(false, true)) {
             this.log.debug("Connection manager is shutting down");
             try {
+                //关闭Cpool中资源
                 this.pool.shutdown();
             } catch (final IOException ex) {
                 this.log.debug("I/O exception shutting down connection manager", ex);
@@ -423,6 +431,7 @@ public class PoolingHttpClientConnectionManager
     }
 
     @Override
+    //关闭空闲连接
     public void closeIdleConnections(final long idleTimeout, final TimeUnit timeUnit) {
         if (this.log.isDebugEnabled()) {
             this.log.debug("Closing connections idle longer than " + idleTimeout + " " + timeUnit);
@@ -430,6 +439,7 @@ public class PoolingHttpClientConnectionManager
         this.pool.closeIdle(idleTimeout, timeUnit);
     }
 
+    //关闭超时连接
     @Override
     public void closeExpiredConnections() {
         this.log.debug("Closing expired connections");
@@ -547,9 +557,9 @@ public class PoolingHttpClientConnectionManager
         pool.setValidateAfterInactivity(ms);
     }
 
-    //COnfig Data
+    //Config Data
     static class ConfigData {
-        //不同路由的SocketConfig配置
+        //不同HttpHost的SocketConfig配置
         private final Map<HttpHost, SocketConfig> socketConfigMap;
         private final Map<HttpHost, ConnectionConfig> connectionConfigMap;
         //默认SocketConfig和ConnectionConfig

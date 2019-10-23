@@ -67,9 +67,11 @@ public class DefaultHttpClientConnectionOperator implements HttpClientConnection
     static final String SOCKET_FACTORY_REGISTRY = "http.socket-factory-registry";
 
     private final Log log = LogFactory.getLog(getClass());
-
+    //支持的协议以及对应的底层SocketFactory
     private final Lookup<ConnectionSocketFactory> socketFactoryRegistry;
+    //Http Scheme解析器，根据Scheme获取默认的服务端口
     private final SchemePortResolver schemePortResolver;
+    //DNS服务，根据host解析网络
     private final DnsResolver dnsResolver;
 
     public DefaultHttpClientConnectionOperator(
@@ -96,6 +98,7 @@ public class DefaultHttpClientConnectionOperator implements HttpClientConnection
         return reg;
     }
 
+    //解析Host的InetAddress，创建Socket，并和conn绑定。然后将Socket连接到从Host中解析出的InetAddress
     @Override
     public void connect(
             final ManagedHttpClientConnection conn,
@@ -118,8 +121,9 @@ public class DefaultHttpClientConnectionOperator implements HttpClientConnection
         final int port = this.schemePortResolver.resolve(host);
         for (int i = 0; i < addresses.length; i++) {
             final InetAddress address = addresses[i];
+            //判断是否是最后一个
             final boolean last = i == addresses.length - 1;
-            //创建socket连接
+            //创建socket
             Socket sock = sf.createSocket(context);
             //配置TCP参数
             sock.setSoTimeout(socketConfig.getSoTimeout());
@@ -137,7 +141,7 @@ public class DefaultHttpClientConnectionOperator implements HttpClientConnection
             if (linger >= 0) {
                 sock.setSoLinger(true, linger);
             }
-            //将socket连接和HttpConnection绑定
+            //将socket连接和HttpClientConnection绑定[建立管理]
             conn.bind(sock);
 
             final InetSocketAddress remoteAddress = new InetSocketAddress(address, port);
@@ -145,7 +149,7 @@ public class DefaultHttpClientConnectionOperator implements HttpClientConnection
                 this.log.debug("Connecting to " + remoteAddress);
             }
             try {
-                //连接过服务器
+                //创建本地到remoteAddress的连接
                 sock = sf.connectSocket(
                         connectTimeout, sock, host, remoteAddress, localAddress, context);
                 conn.bind(sock);

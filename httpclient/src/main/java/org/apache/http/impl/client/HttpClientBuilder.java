@@ -958,13 +958,13 @@ public class HttpClientBuilder {
             publicSuffixMatcherCopy = PublicSuffixMatcherLoader.getDefault();
         }
 
-        //创建HttpRequestExecutor
+        //创建HttpRequestExecutor【用于发送请求并获取响应】
         HttpRequestExecutor requestExecCopy = this.requestExec;
         if (requestExecCopy == null) {
             requestExecCopy = new HttpRequestExecutor();
         }
 
-        //创建HttpClientConnectionManager
+        //创建HttpClientConnectionManager[管理HttpClientConnection]
         HttpClientConnectionManager connManagerCopy = this.connManager;
         if (connManagerCopy == null) {
             //创建sslSocketFactoryCopy
@@ -995,6 +995,7 @@ public class HttpClientBuilder {
                 }
             }
             @SuppressWarnings("resource")
+            //创建PoolingHttpClientConnectionManager
             final PoolingHttpClientConnectionManager poolingmgr = new PoolingHttpClientConnectionManager(
                     RegistryBuilder.<ConnectionSocketFactory>create()
                         .register("http", PlainConnectionSocketFactory.getSocketFactory())
@@ -1079,7 +1080,7 @@ public class HttpClientBuilder {
             }
         }
 
-        //创建ClientExecChain
+        //创建MainClientExec[最重要的ClientExec]
         ClientExecChain execChain = createMainExec(
                 requestExecCopy,
                 connManagerCopy,
@@ -1160,7 +1161,7 @@ public class HttpClientBuilder {
             }
             httpprocessorCopy = b.build();
         }
-        //ProtocolExec
+        //创建ProtocolExec，其中链的方向为ProtocolExec---》MainClientExec
         execChain = new ProtocolExec(execChain, httpprocessorCopy);
 
         execChain = decorateProtocolExec(execChain);
@@ -1171,6 +1172,7 @@ public class HttpClientBuilder {
             if (retryHandlerCopy == null) {
                 retryHandlerCopy = DefaultHttpRequestRetryHandler.INSTANCE;
             }
+            //创建RetryExec，其中链的方向为RetryExec---》ProtocolExec---》MainClientExec
             execChain = new RetryExec(execChain, retryHandlerCopy);
         }
 
@@ -1197,6 +1199,7 @@ public class HttpClientBuilder {
         }
 
         // Add redirect executor, if not disabled
+        //创建RedirectExec，此时其中链的方向为RedirectExec--》RetryExec---》ProtocolExec---》MainClientExec
         if (!redirectHandlingDisabled) {
             RedirectStrategy redirectStrategyCopy = this.redirectStrategy;
             if (redirectStrategyCopy == null) {

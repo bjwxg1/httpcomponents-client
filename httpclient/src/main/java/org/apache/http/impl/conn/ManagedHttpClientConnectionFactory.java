@@ -58,6 +58,7 @@ import org.apache.http.io.HttpMessageWriterFactory;
 public class ManagedHttpClientConnectionFactory
         implements HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> {
 
+    //计数器
     private static final AtomicLong COUNTER = new AtomicLong();
 
     public static final ManagedHttpClientConnectionFactory INSTANCE = new ManagedHttpClientConnectionFactory();

@@ -49,6 +49,7 @@ public interface DnsResolver {
      * @return The IP address associated to the given host name, or null if the
      *         host name is not known by the implementation class.
      */
+    //DNS解析服务
     InetAddress[] resolve(String host) throws UnknownHostException;
 
 }

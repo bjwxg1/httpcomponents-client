@@ -51,6 +51,7 @@ public interface ConnectionSocketFactory {
      *
      * @throws IOException if an I/O error occurs while creating the socket
      */
+    //根据context创建一个Socket连接
     Socket createSocket(HttpContext context) throws IOException;
 
     /**
@@ -70,6 +71,7 @@ public interface ConnectionSocketFactory {
      *
      * @throws IOException if an I/O error occurs
      */
+    //将给定的sock连接到remoteAddress
     Socket connectSocket(
         int connectTimeout,
         Socket sock,

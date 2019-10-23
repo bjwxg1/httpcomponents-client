@@ -45,6 +45,7 @@ import org.apache.http.protocol.HttpContext;
  */
 public interface HttpClientConnectionOperator {
 
+
     void connect(
             ManagedHttpClientConnection conn,
             HttpHost host,

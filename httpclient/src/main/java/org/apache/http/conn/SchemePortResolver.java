@@ -38,6 +38,7 @@ public interface SchemePortResolver {
     /**
      * Returns the actual port for the host based on the protocol scheme.
      */
+    //根据scheme返回默认的port
     int resolve(HttpHost host) throws UnsupportedSchemeException;
 
 }
