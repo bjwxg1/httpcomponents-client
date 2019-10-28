@@ -33,18 +33,22 @@ package org.apache.http.auth;
  *
  * @since 4.0
  */
+//服务器认证
 public final class AUTH {
 
     /**
      * The www authenticate challange header.
      */
+    //如果Http访问的资源需要认证，服务端的响应会增加WWW-Authenticate response header信息，提示用户进行认证
     public static final String WWW_AUTH = "WWW-Authenticate";
 
     /**
      * The www authenticate response header.
      */
+    //客户端收到服务端WWW-Authenticate响应，会进行Authorization认证
     public static final String WWW_AUTH_RESP = "Authorization";
 
+    //代理认证
     /**
      * The proxy authenticate challange header.
      */

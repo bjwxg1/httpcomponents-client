@@ -953,6 +953,7 @@ public class HttpClientBuilder {
     public CloseableHttpClient build() {
         // Create main request executor
         // We copy the instance fields to avoid changing them, and rename to avoid accidental use of the wrong version
+        //创建PublicSuffixMatcher，主要用于公共前置校验
         PublicSuffixMatcher publicSuffixMatcherCopy = this.publicSuffixMatcher;
         if (publicSuffixMatcherCopy == null) {
             publicSuffixMatcherCopy = PublicSuffixMatcherLoader.getDefault();
